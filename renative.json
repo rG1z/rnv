@@ -1,0 +1,98 @@
+{
+  "platforms": {},
+  "plugins": {
+    "@react-native-community/cli-platform-ios": "source:rnv",
+    "@react-native-community/cli": "source:rnv",
+    "react-native-tvos": "source:rnv",
+    "react-native-web": "source:rnv",
+    "next": "source:rnv",
+    "@react-native-firebase/app": "source:rnv",
+    "@react-native-firebase/auth": {
+      "android": {
+        "package": "io.invertase.firebase.auth.ReactNativeFirebaseAuthPackage",
+        "projectName": "@react-native-firebase_auth"
+      },
+      "androidtv": {
+        "package": "io.invertase.firebase.auth.ReactNativeFirebaseAuthPackage",
+        "projectName": "@react-native-firebase_auth"
+      },
+      "ios": {
+        "appDelegateImports": ["Firebase"],
+        "appDelegateMethods": {
+          "application": {
+            "didFinishLaunchingWithOptions": [
+              {
+                "order": -1,
+                "value": "FirebaseApp.configure()",
+                "weight": 1
+              }
+            ]
+          }
+        },
+        "isStatic": true,
+        "podName": "RNFBAuth",
+        "xcodeproj": {
+          "resourceFiles": ["RNVApp/GoogleService-Info.plist"]
+        }
+      },
+      "pluginDependencies": {
+        "@react-native-firebase/app": "source:rnv"
+      },
+      "version": "16.7.0"
+    },
+    "@react-navigation/native": "source:rnv",
+    "@react-navigation/native-stack": "source:rnv",
+    "react-native-screens": "source:rnv",
+    "react-native-safe-area-context": "source:rnv",
+    "react-native-video": "source:rnv",
+    "react-native-vector-icons": "source:rnv",
+    "@react-native-firebase/firestore": {
+      "version": "16.7.0",
+      "dependsOn": ["@react-native-firebase/app"],
+      "path": "node_modules/@react-native-firebase/firestore",
+      "ios": {
+        "isStatic": true,
+        "podName": "RNFBFirestore",
+        "xcodeproj": {
+          "resourceFiles": ["RNVApp/GoogleService-Info.plist"]
+        },
+        "appDelegateImports": ["Firebase"],
+        "appDelegateMethods": {
+          "application": {
+            "didFinishLaunchingWithOptions": ["FirebaseApp.configure()"]
+          }
+        }
+      },
+      "android": {
+        "package": "io.invertase.firebase.firestore.ReactNativeFirebaseFirestorePackage",
+        "projectName": "@react-native-firebase_firestore"
+      }
+    },
+    "@react-navigation/bottom-tabs": "source:rnv"
+  },
+  "extendsTemplate": "@rnv/template-starter/renative.json",
+  "projectName": "academy",
+  "workspaceID": "rnv",
+  "defaults": {
+    "title": "Hello Renative",
+    "id": "com.mycompany.academy",
+    "supportedPlatforms": [
+      "ios",
+      "android",
+      "androidtv",
+      "web",
+      "tizen",
+      "tvos",
+      "webos",
+      "windows"
+    ]
+  },
+  "engines": {},
+  "templates": {
+    "@rnv/template-starter": {
+      "version": "0.37.1"
+    }
+  },
+  "currentTemplate": "@rnv/template-starter",
+  "isMonorepo": false
+}
