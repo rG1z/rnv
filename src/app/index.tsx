@@ -3,11 +3,11 @@ import { Button, Alert, View, Text } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import auth from "@react-native-firebase/auth";
-import MyComponent from "../pages/Login";
-import MovieApp from "../pages/HomePage";
-import MovieDetailsScreen from "../pages/MovieDetails";
-import MovieTrailer from "../pages/MovieTrailer";
-import MyListScreen from "../pages/MyList";
+import MyComponent from "./Login";
+import MovieApp from "./HomePage";
+import MovieDetailsScreen from "./MovieDetails";
+import MovieTrailer from "./MovieTrailer";
+import MyListScreen from "./MyList";
 
 const Stack = createNativeStackNavigator();
 
