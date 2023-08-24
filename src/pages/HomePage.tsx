@@ -8,14 +8,14 @@ import {
   TouchableOpacity,
   TextInput,
   ImageBackground,
+  Button,
 } from "react-native";
 import axios from "axios";
-import {
-  NavigationContainer,
-  useNavigation,
-  NavigationProp,
-} from "@react-navigation/native";
-import "@react-native-firebase/firestore";
+import { useRouter } from "next/router";
+import "firebase/firestore";
+import firebaseApp from "./firebaseConfig";
+import { Auth, getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+import { isPlatformWeb } from "@rnv/renative";
 
 type Movie = {
   _id: string;
@@ -23,15 +23,49 @@ type Movie = {
   poster: string;
   year: string;
   genre: string;
+  videoLink: string;
 };
 
 const MovieApp = () => {
   const [movies, setMovies] = useState<Movie[]>([]);
-  const navigation = useNavigation<NavigationProp<any>>();
+  const router = useRouter();
   const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
   const [genres, setGenres] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const searchInputRef = useRef<TextInput>(null);
+  const [authenticated, setAuthenticated] = useState(false);
+  const [buttonText, setButtonText] = useState("Logout");
+  const auth: Auth = getAuth(firebaseApp);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setAuthenticated(true);
+        setButtonText("Logout");
+      } else {
+        setAuthenticated(false);
+        setButtonText("Login");
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  const handleLogout = () => {
+    if (authenticated) {
+      signOut(auth)
+        .then(() => {
+          setAuthenticated(false);
+        })
+        .catch((error) => {
+          console.log("Sign out failed:", error);
+        });
+    } else {
+      router.push("/");
+    }
+  };
 
   useEffect(() => {
     fetchMovies();
@@ -53,7 +87,11 @@ const MovieApp = () => {
   };
 
   const handleMoviePress = (movie: Movie) => {
-    navigation.navigate("MovieDetails", { movie, genre: movie.genre });
+    console.log("Selected movie:", movie);
+    router.push({
+      pathname: "/MovieDetails",
+      query: { movieId: movie._id },
+    });
   };
 
   return (
@@ -66,6 +104,21 @@ const MovieApp = () => {
           position: "absolute",
         }}
       ></ImageBackground>
+      <View style={styles.headerContainer}>
+        {authenticated ? (
+          <Button
+            onPress={() => router.push("MyList")}
+            title="My List"
+            color="rgba(111, 202, 186, 1)"
+          />
+        ) : null}
+        ,
+        <Button
+          onPress={() => handleLogout()}
+          title={buttonText}
+          color="rgba(111, 202, 186, 1)"
+        />
+      </View>
       <View style={styles.genreContainer}>
         <TextInput
           ref={searchInputRef}
@@ -120,7 +173,7 @@ const MovieApp = () => {
                 (searchQuery === "" ||
                   movie.title.toLowerCase().includes(searchQuery.toLowerCase()))
             )
-            .map((movie) => (
+            .map((movie, index) => (
               <TouchableOpacity
                 key={movie._id}
                 style={styles.movieCard}
@@ -146,22 +199,28 @@ const MovieApp = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    ...(isPlatformWeb && { height: "100vh" }),
   },
   genreContainer: {
     marginBottom: 10,
+    alignItems: "center",
   },
   movieContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "space-between",
+    justifyContent: "center",
+    alignItems: "center",
     paddingTop: 10,
-    borderWidth: 1,
-    borderColor: "white",
   },
   movieCard: {
-    width: "48%",
+    width: "30%",
     marginBottom: 20,
     alignItems: "center",
+    padding: 10,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderWidth: 1,
+    borderColor: "white",
+    borderStyle: "solid",
   },
   moviePoster: {
     width: 180,
@@ -212,10 +271,17 @@ const styles = StyleSheet.create({
   searchBar: {
     borderWidth: 1,
     borderColor: "#ccc",
-    borderRadius: 5,
+    borderRadius: 10,
     paddingHorizontal: 10,
     marginBottom: 10,
     color: "white",
+  },
+  headerContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    paddingRight: 15,
+    marginTop: 10,
   },
 });
 

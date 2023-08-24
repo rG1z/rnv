@@ -10,6 +10,18 @@ import {
   ImageBackground,
 } from "react-native";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { useRouter } from "next/router";
+import { getAuth } from "firebase/auth";
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  deleteDoc,
+  getDocs,
+  collection,
+} from "firebase/firestore";
+import firebaseApp from "./firebaseConfig";
+import { isPlatformWeb } from "@rnv/renative";
 
 type Movie = {
   _id: string;
@@ -23,20 +35,19 @@ type Movie = {
 
 const MyListScreen: React.FC = () => {
   const [movies, setMovies] = useState<Movie[]>([]);
-  const navigation = useNavigation<NavigationProp<any>>();
+  const router = useRouter();
+  const auth = getAuth(firebaseApp);
+  const firestore = getFirestore();
 
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const user = firebase.auth().currentUser;
+        const user = auth.currentUser;
 
         if (user) {
-          const snapshot = await firebase
-            .firestore()
-            .collection("users")
-            .doc(user.uid)
-            .collection("movies")
-            .get();
+          const snapshot = await getDocs(
+            collection(firestore, "users", user.uid, "movies")
+          );
 
           const movieList: Movie[] = [];
           snapshot.forEach((doc) => {
@@ -63,20 +74,20 @@ const MyListScreen: React.FC = () => {
     fetchMovies();
   }, []);
   const handleMoviePress = (movie: Movie) => {
-    navigation.navigate("MovieDetails", { movie });
+    router.push("MovieDetails");
   };
 
   return (
     <ScrollView>
+      <ImageBackground
+        source={require("../../platformAssets/runtime/img.png")}
+        style={{
+          width: "100%",
+          height: "100%",
+          position: "absolute",
+        }}
+      ></ImageBackground>
       <View style={styles.container}>
-        <ImageBackground
-          source={require("../../platformAssets/runtime/img.png")}
-          style={{
-            width: "100%",
-            height: "100%",
-            position: "absolute",
-          }}
-        ></ImageBackground>
         {movies.map((movie) => (
           <TouchableOpacity
             key={movie._id}
@@ -103,6 +114,7 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     justifyContent: "space-between",
     padding: 10,
+    ...(isPlatformWeb && { height: "100vh" }),
   },
   movieCard: {
     width: "48%",

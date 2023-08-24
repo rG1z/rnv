@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -10,16 +10,15 @@ import {
   Alert,
   ScrollView,
   ImageBackground,
-} from "react-native";
-import { NavigationProp, RouteProp, useRoute } from "@react-navigation/native";
-import auth from "@react-native-firebase/auth";
-import AntDesign from "react-native-vector-icons/AntDesign";
-import { useNavigation } from "@react-navigation/native";
-import firebase from "./firebaseConfig";
-import axios from "axios";
-import "@react-native-firebase/firestore";
+} from 'react-native';
+import {NavigationProp, RouteProp, useRoute} from '@react-navigation/native';
+import auth from '@react-native-firebase/auth';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import {useNavigation} from '@react-navigation/native';
+import firebase from './firebaseConfig';
+import axios from 'axios';
 
-const { height, width } = Dimensions.get("window");
+const {height, width} = Dimensions.get('window');
 
 const setHeight = (h: number) => (height / 100) * h;
 const setWidth = (w: number) => (width / 100) * w;
@@ -35,15 +34,15 @@ type Movie = {
 };
 
 type StackParamList = {
-  MovieDetails: { movie: Movie };
-  MovieTrailer: { movie: Movie };
+  MovieDetails: {movie: Movie};
+  MovieTrailer: {movie: Movie};
 };
 
-type MovieDetailsScreenRouteProp = RouteProp<StackParamList, "MovieDetails">;
+type MovieDetailsScreenRouteProp = RouteProp<StackParamList, 'MovieDetails'>;
 
 const MovieDetailsScreen: React.FC = ({}) => {
   const route = useRoute<MovieDetailsScreenRouteProp>();
-  const { movie }: { movie: Movie } = route.params;
+  const {movie}: {movie: Movie} = route.params;
   const [authenticated, setAuthenticated] = useState(false);
   const [inLibrary, setInLibrary] = useState(false);
   const navigation = useNavigation<NavigationProp<any>>();
@@ -52,10 +51,10 @@ const MovieDetailsScreen: React.FC = ({}) => {
   const fetchSimilarMovies = async () => {
     try {
       const response = await axios.get<Movie[]>(
-        `http://192.168.1.119:3000/movies/genre/${movie.genre}`
+        `http://192.168.1.119:3000/movies/genre/${movie.genre}`,
       );
       const filteredMovies = response.data.filter(
-        (similarMovie) => similarMovie._id !== movie._id
+        similarMovie => similarMovie._id !== movie._id,
       );
       setSimilarMovies(filteredMovies);
     } catch (error) {
@@ -70,9 +69,9 @@ const MovieDetailsScreen: React.FC = ({}) => {
       if (user) {
         await firebase
           .firestore()
-          .collection("users")
+          .collection('users')
           .doc(user.uid)
-          .collection("movies")
+          .collection('movies')
           .doc(movie._id)
           .set({
             title: movie.title,
@@ -84,12 +83,12 @@ const MovieDetailsScreen: React.FC = ({}) => {
           });
 
         setInLibrary(true);
-        Alert.alert("Movie added to library!");
+        Alert.alert('Movie added to library!');
       } else {
-        Alert.alert("Please login to add movies to your library.");
+        Alert.alert('Please login to add movies to your library.');
       }
     } catch (error) {
-      Alert.alert("Error adding movie to library:");
+      Alert.alert('Error adding movie to library:');
     }
   };
 
@@ -100,24 +99,24 @@ const MovieDetailsScreen: React.FC = ({}) => {
       if (user) {
         await firebase
           .firestore()
-          .collection("users")
+          .collection('users')
           .doc(user.uid)
-          .collection("movies")
+          .collection('movies')
           .doc(movie._id)
           .delete();
 
         setInLibrary(false);
-        Alert.alert("Movie removed from library!");
+        Alert.alert('Movie removed from library!');
       } else {
-        Alert.alert("Please login to remove movies from your library.");
+        Alert.alert('Please login to remove movies from your library.');
       }
     } catch (error) {
-      Alert.alert("Error removing movie from library:");
+      Alert.alert('Error removing movie from library:');
     }
   };
 
   useEffect(() => {
-    const unsubscribe = auth().onAuthStateChanged((user) => {
+    const unsubscribe = auth().onAuthStateChanged(user => {
       if (user) {
         setAuthenticated(true);
         checkIfMovieInLibrary(user.uid);
@@ -125,7 +124,6 @@ const MovieDetailsScreen: React.FC = ({}) => {
       } else {
         setAuthenticated(false);
         setInLibrary(false);
-        fetchSimilarMovies();
       }
     });
 
@@ -138,30 +136,30 @@ const MovieDetailsScreen: React.FC = ({}) => {
     try {
       const docSnapshot = await firebase
         .firestore()
-        .collection("users")
+        .collection('users')
         .doc(userId)
-        .collection("movies")
+        .collection('movies')
         .doc(movie._id)
         .get();
 
       setInLibrary(docSnapshot.exists);
     } catch (error) {
-      console.log("Error checking movie in library:", error);
+      console.log('Error checking movie in library:', error);
     }
   };
 
   const movieTrailerPress = (movie: Movie) => {
-    navigation.navigate("MovieTrailer", { movie });
+    navigation.navigate('MovieTrailer', {movie});
   };
   const movieDetailsSimilar = (movie: Movie) => {
-    navigation.navigate("MovieDetails", { movie });
+    navigation.navigate('MovieDetails', {movie});
   };
 
   return (
     <ScrollView>
       <View style={styles.container}>
         {movie.poster ? (
-          <Image source={{ uri: movie.poster }} style={styles.poster} />
+          <Image source={{uri: movie.poster}} style={styles.poster} />
         ) : (
           <Text>No poster available</Text>
         )}
@@ -171,7 +169,7 @@ const MovieDetailsScreen: React.FC = ({}) => {
               name="playcircleo"
               size={60}
               color="white"
-              style={{ position: "absolute", top: -130, left: -25 }}
+              style={{position: 'absolute', top: -130, left: -25}}
             />
           </TouchableOpacity>
         </View>
@@ -187,7 +185,7 @@ const MovieDetailsScreen: React.FC = ({}) => {
       <View style={styles.addToBttn}>
         {authenticated ? (
           <Button
-            title={inLibrary ? "Remove from Library" : "Add To Library"}
+            title={inLibrary ? 'Remove from Library' : 'Add To Library'}
             onPress={() =>
               inLibrary ? removeFromLibrary(movie) : addToLibrary(movie)
             }
@@ -200,15 +198,13 @@ const MovieDetailsScreen: React.FC = ({}) => {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        style={styles.similarMoviePosterContainer}
-      >
-        {similarMovies.map((similarMovie) => (
+        style={styles.similarMoviePosterContainer}>
+        {similarMovies.map(similarMovie => (
           <TouchableOpacity
             key={similarMovie._id}
-            onPress={() => movieDetailsSimilar(similarMovie)}
-          >
+            onPress={() => movieDetailsSimilar(similarMovie)}>
             <Image
-              source={{ uri: similarMovie.poster }}
+              source={{uri: similarMovie.poster}}
               style={styles.similarPoster}
             />
           </TouchableOpacity>
@@ -222,8 +218,8 @@ const styles = StyleSheet.create({
   container: {
     height: setHeight(35),
     width: setWidth(145),
-    alignItems: "center",
-    position: "relative",
+    alignItems: 'center',
+    position: 'relative',
     left: setWidth((100 - 145) / 2),
     top: 0,
     borderBottomRightRadius: 300,
@@ -235,12 +231,12 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 300,
     width: setWidth(145),
     height: setHeight(35),
-    resizeMode: "contain",
+    resizeMode: 'contain',
   },
   similarMoviePosterContainer: {
     paddingTop: 30,
     flex: 1,
-    resizeMode: "cover",
+    resizeMode: 'cover',
     width: setWidth(145),
     height: setHeight(35),
   },
@@ -249,17 +245,17 @@ const styles = StyleSheet.create({
     height: setHeight(25),
   },
   movieTitle: {
-    color: "black",
-    fontFamily: "NunitoSans-ExtraBold",
+    color: 'black',
+    fontFamily: 'NunitoSans-ExtraBold',
     fontSize: 20,
-    alignItems: "center",
+    alignItems: 'center',
     paddingTop: 30,
   },
   movieYearGenre: {
     fontSize: 13,
-    alignItems: "center",
+    alignItems: 'center',
     paddingTop: 5,
-    color: "black",
+    color: 'black',
   },
   descriptionContainer: {
     paddingTop: 100,
@@ -267,13 +263,13 @@ const styles = StyleSheet.create({
   },
   descriptionText: {
     fontSize: 18,
-    fontFamily: "NunitoSans-ExtraBold",
-    color: "black",
+    fontFamily: 'NunitoSans-ExtraBold',
+    color: 'black',
   },
   descriptionTextReal: {
     fontSize: 15,
-    fontFamily: "NunitoSans-SemiBold",
-    color: "black",
+    fontFamily: 'NunitoSans-SemiBold',
+    color: 'black',
   },
   addToBttn: {
     paddingTop: 15,
@@ -283,8 +279,8 @@ const styles = StyleSheet.create({
   },
   similarMoviesText: {
     fontSize: 17,
-    fontFamily: "NunitoSans-ExtraBold",
-    color: "black",
+    fontFamily: 'NunitoSans-ExtraBold',
+    color: 'black',
   },
 });
 
